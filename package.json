@@ -1,0 +1,34 @@
+{
+  "name": "ulift-backend",
+  "version": "1.0.0",
+  "description": "Ulift API",
+  "main": "./src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robersongarcia/ulift-backend.git"
+  },
+  "author": "Roberson Garcia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robersongarcia/ulift-backend/issues"
+  },
+  "homepage": "https://github.com/robersongarcia/ulift-backend#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1",
+    "mariadb": "^3.0.2",
+    "morgan": "^1.10.0",
+    "mysql2": "^2.3.3",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "sequelize": "^6.25.3",
+    "sequelize-auto": "^0.8.8"
+  }
+}
