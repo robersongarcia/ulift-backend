@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
-/* GET user profile. */
-router.get('/profile', function(req, res, next) {
-    res.send(req.user);
-});
+router.get(
+  '/profile',
+  (req, res, next) => {
+    res.json({
+      message: 'You made it to the secure route',
+      user: req.user,
+      token: req.body.token
+    })
+  }
+);
 
 module.exports = router;

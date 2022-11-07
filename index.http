@@ -1,7 +1,0 @@
-POST localhost:3000/auth/login
-content-type: application/json
-
-{
-    "email": "ragarcia.19@est.ucab.edu.ve",
-    "password": "1234"
-}

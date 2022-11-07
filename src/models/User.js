@@ -33,7 +33,7 @@ class User extends Sequelize.Model {
     },
     photo: {
       type: DataTypes.BLOB,
-      allowNull: false
+      allowNull: true
     },
     gender: {
       type: DataTypes.CHAR(1),
