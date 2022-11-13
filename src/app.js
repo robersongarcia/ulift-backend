@@ -2,32 +2,28 @@ const express =  require('express');
 const logger = require('morgan');
 const passport = require('passport');
 const cors = require('cors')
-const sequelize = require('./config/database.js');
-const initModels = require('./models/init-models');
-require('./config/passport.js')(passport);
-
-const models = initModels(sequelize);
+const sequelize = require('./config/database');
+const initModels = require('./models/init-models')(sequelize);
+require('./config/passport')(passport);
 
 const app = express();
 
-//mid
+//middlewares
 app.use(passport.initialize());
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));  
 
-app.get('/', (req,res) => {
-    res.send('TESTING');
-});
-
 const PORT = process.env.PORT || 3000;
 
-const auth = require('./routes/auth');
-const user = require('./routes/user');
+//routes
+const auth = require('./routes/auth.routes');
+const user = require('./routes/user.routes');
 
-app.use('/auth', auth);
-app.use('/user', passport.authenticate('jwt', {session: false}), user);
+//routing
+app.use('api/', auth);
+app.use('api/user', passport.authenticate('jwt', {session: false}), user);
 
 app.listen(PORT, async () => {
     console.log(`App listening on port ${PORT}`);
