@@ -73,7 +73,7 @@ passport.use('signup',new localStrategy({
   );
 
   var opts = {};
-  opts.jwtFromRequest = ExtractJWT.fromBodyField('token');
+  opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();
   opts.secretOrKey = authSecret;
   passport.use(new JWTstrategy(opts, async (jwt_payload, done) => {
     try{
