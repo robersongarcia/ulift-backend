@@ -7,6 +7,7 @@ class User extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     id: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
@@ -24,8 +25,8 @@ class User extends Sequelize.Model {
       allowNull: false
     },
     ci: {
-      type: DataTypes.STRING(8),
-      allowNull: false
+      type: DataTypes.INTEGER.UNSIGNED,
+      allowNull: true
     },
     passwordU: {
       type: DataTypes.STRING(20),

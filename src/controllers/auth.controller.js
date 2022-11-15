@@ -35,24 +35,27 @@ const postSignup = async (req, res, next) => {
     passport.authenticate('signup', { session: false },  async (err, user, info) => {
         try{
             if (err) {
-            const error = new Error('An error occurred.');
+            const error = new Error('An error occurred. aa');
             return next(error);
             }
+            const message = info.message;
 
             if(!user){
-                const message = info.message;
                 res.status(401).json({success: false, message});
                 return
             }
 
-            req.login(user,{ session: false }, async (error) => {
-                if (error) return next(error);
-                const message = info.message;
-                const body = { id: user.dataValues.id, email: user.dataValues.email};
-                const token = jwt.sign( body, authSecret);
+            return res.json({success: true, user, message});
 
-                return res.json({success: true, token, user, message});
-            });
+            // if want to signin after signup
+            // req.login(user,{ session: false }, async (error) => {
+            //     if (error) return next(error);
+            //     const message = info.message;
+            //     const body = { id: user.dataValues.id, email: user.dataValues.email};
+            //     const token = jwt.sign( body, authSecret);
+            //     return res.json({success: true, token, user, message});
+                
+            // });
         }
         catch(error){
           return next(error);

@@ -1,0 +1,5 @@
+POST localhost:3000/api/signup HTTP/1.1
+
+content-type: application/json
+
+{ "email": "ragarcia.19@est.ucab.edu.ve", "password": "123456", "name": "Roberson", "ci": "27922357", "gender": "M", "lastname": "Garcia" }

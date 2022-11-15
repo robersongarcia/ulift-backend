@@ -22,8 +22,8 @@ const auth = require('./routes/auth.routes');
 const user = require('./routes/user.routes');
 
 //routing
-app.use('api/', auth);
-app.use('api/user', passport.authenticate('jwt', {session: false}), user);
+app.use('/api', auth);
+app.use('/api/user', passport.authenticate('jwt', {session: false}), user);
 
 app.listen(PORT, async () => {
     console.log(`App listening on port ${PORT}`);
