@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon ./src/app.js",
-    "models": "npx sequelize-auto -o \"./src/models\" -d bd2_202225_27922357 -h labs-dbservices01.ucab.edu.ve -u bd2_202225_27922357 -p 3306 -x 27922357 -e mysql -l es6"
+    "models": "npx sequelize-auto -o \"./src/models\" -d bd2_202225_27922357 -h labs-dbservices01.ucab.edu.ve -u bd2_202225_27922357 -p 3306 -x 27922357 -e mysql -l es6",
+    "start": "node ./src/app.js"
   },
   "repository": {
     "type": "git",
