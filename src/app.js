@@ -35,3 +35,7 @@ app.listen(PORT, async () => {
     }
 });
 
+// Default message
+app.get('/', (req, res) => {
+    res.json({message: 'API is working'});
+});

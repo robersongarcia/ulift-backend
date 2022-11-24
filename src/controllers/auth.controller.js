@@ -6,7 +6,7 @@ const postLogin = async (req, res, next) => {
     passport.authenticate('login', async (err, user, info) => {
         try {
             if (err) {
-                const error = new Error('An error occurred.');
+                const error = new Error('An error occurred. Login');
                 return next(error);
             }
 
@@ -19,7 +19,7 @@ const postLogin = async (req, res, next) => {
             req.login(user,{ session: false }, async (error) => {
                 if (error) return next(error);
 
-                const body = { id: user.dataValues.id, email: user.dataValues.email};
+                const body = { id: user.id, email: user.email, nameU: user.nameU, lastname: user.lastname,};
                 const token = jwt.sign( body, authSecret);
 
                 return res.json({success: true, token});
@@ -35,7 +35,7 @@ const postSignup = async (req, res, next) => {
     passport.authenticate('signup', { session: false },  async (err, user, info) => {
         try{
             if (err) {
-            const error = new Error('An error occurred. aa');
+            const error = new Error('An error occurred. Signup');
             return next(error);
             }
             const message = info.message;
@@ -46,16 +46,6 @@ const postSignup = async (req, res, next) => {
             }
 
             return res.json({success: true, user, message});
-
-            // if want to signin after signup
-            // req.login(user,{ session: false }, async (error) => {
-            //     if (error) return next(error);
-            //     const message = info.message;
-            //     const body = { id: user.dataValues.id, email: user.dataValues.email};
-            //     const token = jwt.sign( body, authSecret);
-            //     return res.json({success: true, token, user, message});
-                
-            // });
         }
         catch(error){
           return next(error);

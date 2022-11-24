@@ -44,6 +44,10 @@ passport.use('signup',new localStrategy({
       },
       async (req, email, password, done) => {
         try {
+          console.log('------------------')
+          console.log(req.body)
+          console.log('------------------')
+
           const user = await User.findOne({where: {email: email}});
           if (user) {
             return done(null, false, { message: 'User already exists' });
@@ -57,11 +61,10 @@ passport.use('signup',new localStrategy({
             passwordU: hashedPassword,
             nameU: req.body.name,
             lastname: req.body.lastname,
-            ci: req.body.ci,
-            gender: req.body.gender
+            gender: req.body.gender,
+            role: req.body.role
           });
           
-          // console.log(newUser);
           await newUser.save();
 
           return done(null, newUser, { message: 'User created succesfuly' });
@@ -77,7 +80,7 @@ passport.use('signup',new localStrategy({
   opts.secretOrKey = authSecret;
   passport.use(new JWTstrategy(opts, async (jwt_payload, done) => {
     try{
-      const user = await User.findOne({where:{id: jwt_payload.id}});
+      const user = await User.findOne({where:{id: jwt_payload.id, email: jwt_payload.email}});
       if (user) {
         return done(null, user);
       } else {

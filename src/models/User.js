@@ -24,12 +24,8 @@ class User extends Sequelize.Model {
       type: DataTypes.STRING(30),
       allowNull: false
     },
-    ci: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: true
-    },
     passwordU: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     photo: {
@@ -38,11 +34,21 @@ class User extends Sequelize.Model {
     },
     gender: {
       type: DataTypes.CHAR(1),
-      allowNull: true
+      allowNull: false
     },
     rate: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      defaultValue: 0
+    },
+    role: {
+      type: DataTypes.CHAR(1),
+      allowNull: false
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,
