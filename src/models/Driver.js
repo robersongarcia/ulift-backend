@@ -7,7 +7,6 @@ class Driver extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     driverID: {
-      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
@@ -21,7 +20,7 @@ class Driver extends Sequelize.Model {
       allowNull: false
     },
     availability: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BOOLEAN,
       allowNull: false
     }
   }, {

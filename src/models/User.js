@@ -28,7 +28,7 @@ class User extends Sequelize.Model {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    photo: {
+    photoData: {
       type: DataTypes.BLOB,
       allowNull: true
     },
@@ -49,6 +49,10 @@ class User extends Sequelize.Model {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: 0
+    },
+    photoType: {
+      type: DataTypes.STRING(20),
+      allowNull: true
     }
   }, {
     sequelize,

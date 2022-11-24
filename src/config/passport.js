@@ -5,6 +5,7 @@ const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const bcrypt = require('bcryptjs');
 const authSecret = require('./authSecret');
+const fs = require("fs");
 
 const User = require('../models/User.js')(sequelize,DataTypes);
 
@@ -44,9 +45,10 @@ passport.use('signup',new localStrategy({
       },
       async (req, email, password, done) => {
         try {
-          console.log('------------------')
-          console.log(req.body)
-          console.log('------------------')
+
+          if(req.file == undefined){
+            return done(null, false, {message: 'Please upload a profile image'});
+          }
 
           const user = await User.findOne({where: {email: email}});
           if (user) {
@@ -54,18 +56,29 @@ passport.use('signup',new localStrategy({
           }
 
           const salt = await bcrypt.genSalt(10);
-          const hashedPassword = await bcrypt.hash(password, salt);
-          
+          const hashedPassword = await bcrypt.hash(password, salt);          
+
           const newUser = User.build({
             email: email,
             passwordU: hashedPassword,
             nameU: req.body.name,
             lastname: req.body.lastname,
             gender: req.body.gender,
-            role: req.body.role
+            role: req.body.role,
+            photoType: req.file.mimetype,
+            photoData: fs.readFileSync(__basedir + "/files/up/" + req.file.filename)
           });
           
+          console.log(newUser);
+          
           await newUser.save();
+
+          fs.writeFileSync(__basedir + "/files/tmp/" + req.file.filename,
+            newUser.photoData
+          );
+
+          fs.unlinkSync(__basedir + "/files/up/" + req.file.filename);
+          fs.unlinkSync(__basedir + "/files/tmp/" + req.file.filename);
 
           return done(null, newUser, { message: 'User created succesfuly' });
         } catch (error) {

@@ -5,6 +5,8 @@ const cors = require('cors')
 const sequelize = require('./config/database');
 const initModels = require('./models/init-models')(sequelize);
 require('./config/passport')(passport);
+global.__basedir = __dirname;
+
 
 const app = express();
 

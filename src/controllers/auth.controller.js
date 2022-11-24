@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const authSecret = require('../config/authSecret');
+const fs = require("fs");
 
 const postLogin = async (req, res, next) => {
     passport.authenticate('login', async (err, user, info) => {
@@ -35,8 +36,8 @@ const postSignup = async (req, res, next) => {
     passport.authenticate('signup', { session: false },  async (err, user, info) => {
         try{
             if (err) {
-            const error = new Error('An error occurred. Signup');
-            return next(error);
+                const error = new Error('An error occurred. Signup');
+                return next(error);
             }
             const message = info.message;
 
@@ -45,13 +46,15 @@ const postSignup = async (req, res, next) => {
                 return
             }
 
-            return res.json({success: true, user, message});
+            return res.json({success: true, message});
         }
         catch(error){
           return next(error);
         }
     })(req, res, next);
 };
+
+
 
 module.exports = {
     postLogin,
