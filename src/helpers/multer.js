@@ -10,10 +10,10 @@ const imageFilter = (req, file, cb) => {
 
 let storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, __basedir + "/files/up/");
+      cb(null, __basedir + "/public/images/");
     },
     filename: (req, file, cb) => {
-      cb(null, `${file.originalname}`);
+      cb(null, `${req.body.email.slice(0, req.body.email.indexOf("@"))}-profile`);
     },
   });
 

@@ -65,20 +65,13 @@ passport.use('signup',new localStrategy({
             lastname: req.body.lastname,
             gender: req.body.gender,
             role: req.body.role,
-            photoType: req.file.mimetype,
-            photoData: fs.readFileSync(__basedir + "/files/up/" + req.file.filename)
+            photo: 'images/'+req.body.email.slice(0, req.body.email.indexOf("@"))+'-profile',
+            emergencyContact: req.body.emergencyContact,
           });
           
           console.log(newUser);
           
           await newUser.save();
-
-          fs.writeFileSync(__basedir + "/files/tmp/" + req.file.filename,
-            newUser.photoData
-          );
-
-          fs.unlinkSync(__basedir + "/files/up/" + req.file.filename);
-          fs.unlinkSync(__basedir + "/files/tmp/" + req.file.filename);
 
           return done(null, newUser, { message: 'User created succesfuly' });
         } catch (error) {

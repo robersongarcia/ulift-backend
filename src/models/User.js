@@ -28,10 +28,6 @@ class User extends Sequelize.Model {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    photoData: {
-      type: DataTypes.BLOB,
-      allowNull: true
-    },
     gender: {
       type: DataTypes.CHAR(1),
       allowNull: false
@@ -50,7 +46,11 @@ class User extends Sequelize.Model {
       allowNull: false,
       defaultValue: 0
     },
-    photoType: {
+    photo: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    emergencyContact: {
       type: DataTypes.STRING(20),
       allowNull: true
     }

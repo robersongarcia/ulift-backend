@@ -51,7 +51,12 @@ const validatePostSignup = validate([
     body('gender')
       .exists().withMessage('gender is required').bail()
       .isString().withMessage('invalid gender').bail()
-      .isLength({max: 1}).isIn(['M','F'])
+      .isLength({max: 1}).isIn(['M','F']),
+
+    body('emergencyContact')
+      .exists().withMessage('emergencyContact is required').bail()
+      .isString().withMessage('invalid emergencyContact').bail()
+      .isLength({ min:10  , max: 14}).withMessage('emergencyContact must be 11 characters minimum').bail()
 ]);
 
 const validatePostLogin = validate([

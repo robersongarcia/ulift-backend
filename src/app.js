@@ -4,13 +4,15 @@ const passport = require('passport');
 const cors = require('cors')
 const sequelize = require('./config/database');
 const initModels = require('./models/init-models')(sequelize);
+path = require('path');
 require('./config/passport')(passport);
 global.__basedir = __dirname;
-
+const public = path.join(__dirname, 'public');
 
 const app = express();
 
 //middlewares
+app.use(express.static(public));
 app.use(passport.initialize());
 app.use(cors());
 app.use(logger('dev'));
