@@ -3,6 +3,7 @@ const _Destination = require("./Destination");
 const _Driver = require("./Driver");
 const _Lift = require("./Lift");
 const _Rate_Comment = require("./Rate_Comment");
+const _Route = require("./Route");
 const _User = require("./User");
 const _Vehicle = require("./Vehicle");
 const _Waiting_List = require("./Waiting_List");
@@ -12,12 +13,15 @@ function initModels(sequelize) {
   const Driver = _Driver(sequelize, DataTypes);
   const Lift = _Lift(sequelize, DataTypes);
   const Rate_Comment = _Rate_Comment(sequelize, DataTypes);
+  const Route = _Route(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
   const Vehicle = _Vehicle(sequelize, DataTypes);
   const Waiting_List = _Waiting_List(sequelize, DataTypes);
 
   Driver.belongsToMany(User, { as: 'passengerID_Users', through: Waiting_List, foreignKey: "driverID", otherKey: "passengerID" });
   User.belongsToMany(Driver, { as: 'driverID_Drivers', through: Waiting_List, foreignKey: "passengerID", otherKey: "driverID" });
+  Route.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
+  Driver.hasMany(Route, { as: "Routes", foreignKey: "driverID"});
   Waiting_List.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
   Driver.hasMany(Waiting_List, { as: "Waiting_Lists", foreignKey: "driverID"});
   Rate_Comment.belongsTo(Lift, { as: "passenger", foreignKey: "passengerID"});
@@ -48,6 +52,7 @@ function initModels(sequelize) {
     Driver,
     Lift,
     Rate_Comment,
+    Route,
     User,
     Vehicle,
     Waiting_List,

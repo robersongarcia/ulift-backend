@@ -71,7 +71,7 @@ class Lift extends Sequelize.Model {
         ]
       },
       {
-        name: "driverID",
+        name: "Lift_ibfk_2",
         using: "BTREE",
         fields: [
           { name: "driverID" },
