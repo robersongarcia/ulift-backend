@@ -1,6 +1,7 @@
 const DataTypes = require("sequelize").DataTypes;
 const _Destination = require("./Destination");
 const _Driver = require("./Driver");
+const _Favorites = require("./Favorites");
 const _Lift = require("./Lift");
 const _Rate_Comment = require("./Rate_Comment");
 const _Route = require("./Route");
@@ -11,6 +12,7 @@ const _Waiting_List = require("./Waiting_List");
 function initModels(sequelize) {
   const Destination = _Destination(sequelize, DataTypes);
   const Driver = _Driver(sequelize, DataTypes);
+  const Favorites = _Favorites(sequelize, DataTypes);
   const Lift = _Lift(sequelize, DataTypes);
   const Rate_Comment = _Rate_Comment(sequelize, DataTypes);
   const Route = _Route(sequelize, DataTypes);
@@ -20,6 +22,8 @@ function initModels(sequelize) {
 
   Driver.belongsToMany(User, { as: 'passengerID_Users', through: Waiting_List, foreignKey: "driverID", otherKey: "passengerID" });
   User.belongsToMany(Driver, { as: 'driverID_Drivers', through: Waiting_List, foreignKey: "passengerID", otherKey: "driverID" });
+  User.belongsToMany(User, { as: 'userID2_Users', through: Favorites, foreignKey: "userID1", otherKey: "userID2" });
+  User.belongsToMany(User, { as: 'userID1_Users', through: Favorites, foreignKey: "userID2", otherKey: "userID1" });
   Route.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
   Driver.hasMany(Route, { as: "Routes", foreignKey: "driverID"});
   Waiting_List.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
@@ -36,6 +40,10 @@ function initModels(sequelize) {
   User.hasMany(Destination, { as: "Destinations", foreignKey: "userID"});
   Driver.belongsTo(User, { as: "driver", foreignKey: "driverID"});
   User.hasOne(Driver, { as: "Driver", foreignKey: "driverID"});
+  Favorites.belongsTo(User, { as: "userID1_User", foreignKey: "userID1"});
+  User.hasMany(Favorites, { as: "Favorites", foreignKey: "userID1"});
+  Favorites.belongsTo(User, { as: "userID2_User", foreignKey: "userID2"});
+  User.hasMany(Favorites, { as: "userID2_Favorites", foreignKey: "userID2"});
   Lift.belongsTo(User, { as: "passenger", foreignKey: "passengerID"});
   User.hasMany(Lift, { as: "Lifts", foreignKey: "passengerID"});
   Vehicle.belongsTo(User, { as: "driver", foreignKey: "driverID"});
@@ -50,6 +58,7 @@ function initModels(sequelize) {
   return {
     Destination,
     Driver,
+    Favorites,
     Lift,
     Rate_Comment,
     Route,
