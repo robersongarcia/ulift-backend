@@ -4,7 +4,7 @@ const Favorite = require('../models/Favorites.js')(sequelize,DataTypes);
 
 const getFavorites = async (req, res, next) => {
   try {
-    const favorites = await Favorite.findAll({ where: { userID: req.user.id } });
+    const favorites = await Favorite.findAll({ where: { userID1: req.user.id } });
       res.json({
         success: true,
         message: 'user favorites',
