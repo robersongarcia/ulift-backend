@@ -53,6 +53,10 @@ class User extends Sequelize.Model {
     emergencyContact: {
       type: DataTypes.STRING(20),
       allowNull: true
+    },
+    emergencyName: {
+      type: DataTypes.STRING(20),
+      allowNull: true
     }
   }, {
     sequelize,

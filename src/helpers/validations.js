@@ -56,7 +56,14 @@ const validatePostSignup = validate([
     body('emergencyContact')
       .exists().withMessage('emergencyContact is required').bail()
       .isString().withMessage('invalid emergencyContact').bail()
-      .isLength({ min:10  , max: 14}).withMessage('emergencyContact must be 11 characters minimum').bail()
+      .isLength({ min:10  , max: 14}).withMessage('emergencyContact must be 11 characters minimum').bail(),
+
+    body('emergencyName')
+      .exists().withMessage('emergencyName is required').bail()
+      .isString().withMessage('invalid emergencyName').bail()
+      .isLength({ min:2  , max: 20}).withMessage('emergencyContact must be 2 characters minimum and 20 maximum').bail()
+
+    
 ]);
 
 const validatePostLogin = validate([

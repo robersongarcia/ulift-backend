@@ -67,6 +67,7 @@ passport.use('signup',new localStrategy({
             role: req.body.role,
             photo: 'images/'+req.body.email.slice(0, req.body.email.indexOf("@"))+'-profile',
             emergencyContact: req.body.emergencyContact,
+            emergencyName: req.body.emergencyName
           });
           
           console.log(newUser);
