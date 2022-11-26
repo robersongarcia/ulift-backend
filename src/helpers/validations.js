@@ -61,7 +61,7 @@ const validatePostSignup = validate([
 
 const validatePostLogin = validate([
     body('email')
-      .exists().isEmail().withMessage('invalid email').bail,
+      .exists().isEmail().withMessage('invalid email').bail(),
     body('password')
       .exists().isString().isLength({max:20, min:6}).withMessage('invalid password').bail()
 ]);
