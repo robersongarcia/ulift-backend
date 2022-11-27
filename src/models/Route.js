@@ -23,6 +23,14 @@ class Route extends Sequelize.Model {
     path: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    name: {
+      type: DataTypes.STRING(20),
+      allowNull: true
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
     }
   }, {
     sequelize,

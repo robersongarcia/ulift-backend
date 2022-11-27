@@ -73,8 +73,39 @@ const validatePostLogin = validate([
       .exists().isString().isLength({max:20, min:6}).withMessage('invalid password').bail()
 ]);
 
+const validatePostVehicle = validate([
+    body('plate')
+      .exists().withMessage('plate is required').bail()
+      .isString().withMessage('invalid plate').bail()
+      .isLength({ min: 7 , max: 7}).withMessage('plate must be 6 characters').bail(),
+    
+    body('model')
+      .exists().withMessage('model is required').bail()
+      .isString().withMessage('invalid model').bail()
+      .isLength({ min: 2 , max: 20}).withMessage('model must be between 2 and 20 characters').bail(),
+
+    body('color')
+      .exists().withMessage('color is required').bail()
+      .isString().withMessage('invalid color').bail()
+      .isLength({ min: 2 , max: 10}).withMessage('color must be between 2 and 10 characters').bail(),
+
+    body('seats')
+      .exists().withMessage('seats is required').bail()
+      .isInt().withMessage('invalid seats').bail()
+      .custom(value => {
+        if(value < 1 || value > 8) { 
+            throw new Error('invalid seats');
+        }
+        else
+            return true;
+        }).withMessage('invalid seats').bail()
+]);
+
+
+
 module.exports = {
     validatePostSignup,
     validatePostLogin,
-    validate
+    validate,
+    validatePostVehicle
 }

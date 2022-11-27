@@ -19,6 +19,18 @@ class Destination extends Sequelize.Model {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
+    },
+    name: {
+      type: DataTypes.STRING(20),
+      allowNull: true
+    },
+    lat: {
+      type: DataTypes.DECIMAL(8,6),
+      allowNull: true
+    },
+    lng: {
+      type: DataTypes.DECIMAL(9,6),
+      allowNull: true
     }
   }, {
     sequelize,

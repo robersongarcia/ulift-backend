@@ -24,12 +24,14 @@ const PORT = process.env.PORT || 3000;
 //routes
 const auth = require('./routes/auth.routes');
 const user = require('./routes/user.routes');
-const favorites = require('./routes/favorites.routes');  //---------
+const favorites = require('./routes/favorites.routes');
+const lift = require('./routes/lift.routes');
 
 //routing
 app.use('/api', auth);
 app.use('/api/user', passport.authenticate('jwt', {session: false}), user);
-app.use('/api/favorites', passport.authenticate('jwt', {session: false}), favorites); //---------
+app.use('/api/favorites', passport.authenticate('jwt', {session: false}), favorites); 
+app.use('/api/lift', passport.authenticate('jwt', {session: false}), lift);
 
 app.listen(PORT, async () => {
     console.log(`App listening on port ${PORT}`);

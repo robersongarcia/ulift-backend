@@ -22,6 +22,10 @@ class Driver extends Sequelize.Model {
     availability: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    waitingTime: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,
