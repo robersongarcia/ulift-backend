@@ -6,6 +6,6 @@ const upload  = require('../helpers/multer');
 
 router.post('/login', validatePostLogin ,postLogin);
 
-router.post('/signup', upload.single('photo'), validatePostSignup , postSignup);
+router.post('/signup', upload.single('photo') , validatePostSignup , postSignup);
 
 module.exports = router;

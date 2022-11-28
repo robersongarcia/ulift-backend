@@ -48,7 +48,7 @@ passport.use('signup',new localStrategy({
 
           if(req.file == undefined){
             return done(null, false, {message: 'Please upload a profile image'});
-          }
+          }          
 
           const user = await User.findOne({where: {email: email}});
           if (user) {
@@ -65,7 +65,7 @@ passport.use('signup',new localStrategy({
             lastname: req.body.lastname,
             gender: req.body.gender,
             role: req.body.role,
-            photo: 'images/'+req.body.email.slice(0, req.body.email.indexOf("@"))+'-profile',
+            photo: 'images/'+req.file.newFileName,
             emergencyContact: req.body.emergencyContact,
             emergencyName: req.body.emergencyName
           });

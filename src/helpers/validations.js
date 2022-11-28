@@ -1,4 +1,5 @@
 const { body, validationResult } = require("express-validator");
+const fs = require("fs");
 
 const validate = validations => {
     return async (req, res, next) => {
@@ -16,7 +17,31 @@ const validate = validations => {
     };
 };
 
-const validatePostSignup = validate([
+const validateSignUp = validations => {
+  return async (req, res, next) => {
+    for (let validation of validations) {
+      const result = await validation.run(req);
+      if (result.errors.length) break;
+    }
+
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      return next();
+    }
+
+    //delete user photo
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+    });
+
+    res.status(400).json({success: false, message: 'some validations failed' ,errors: errors.array() });
+  };
+};
+
+const validatePostSignup = validateSignUp([
     body('email')
       .exists().withMessage('email is required').bail()
       .isEmail().withMessage('invalid email').bail()

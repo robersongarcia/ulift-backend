@@ -13,7 +13,8 @@ let storage = multer.diskStorage({
       cb(null, __basedir + "/public/images/");
     },
     filename: (req, file, cb) => {
-      cb(null, `${req.body.email.slice(0, req.body.email.indexOf("@"))}-profile`);
+      file.newFileName = `${file.originalname.slice(0, file.originalname.indexOf("."))}-${Date.now()}-profile`;
+      cb(null, `${file.newFileName}`);
     },
   });
 
