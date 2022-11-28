@@ -65,7 +65,7 @@ passport.use('signup',new localStrategy({
             lastname: req.body.lastname,
             gender: req.body.gender,
             role: req.body.role,
-            photo: 'images/'+req.file.newFileName,
+            photo: 'images/'+req.file.filename,
             emergencyContact: req.body.emergencyContact,
             emergencyName: req.body.emergencyName
           });
