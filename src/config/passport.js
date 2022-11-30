@@ -1,11 +1,14 @@
 const sequelize = require('../config/database.js');
-const { DataTypes } = require('sequelize');
+const { DataTypes, UUIDV4 } = require('sequelize');
 const localStrategy = require('passport-local').Strategy;
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const bcrypt = require('bcryptjs');
 const authSecret = require('./authSecret');
 const fs = require("fs");
+const { sendEmail } = require('./mail.config.js');
+const { getToken, getTokenData } = require('./jwt.config.js');
+const passport = require('passport');
 
 const User = require('../models/User.js')(sequelize,DataTypes);
 
@@ -71,7 +74,12 @@ passport.use('signup',new localStrategy({
           });
           
           console.log(newUser);
-          
+
+          const code = UUIDV4();
+          const token = getToken({ email, code });
+
+          await sendEmail(email,'Pruebita',req.body.name,token);
+
           await newUser.save();
 
           return done(null, newUser, { message: 'User created succesfuly' });
@@ -81,6 +89,7 @@ passport.use('signup',new localStrategy({
       }
     ) 
   );
+  
 
   var opts = {};
   opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();
@@ -101,3 +110,47 @@ passport.use('signup',new localStrategy({
 
 
 };
+
+passport.use('confirm',new localStrategy({},
+  async (req, res) => {
+    try {
+      const {token} = req.params;
+            
+      const data = await getTokenData(token);
+        
+      if(data === null){
+        return res.json({
+          success: false,
+          message: 'Error al obtener data'
+        });
+      }
+        
+      const { email, code } = data.data;
+        
+      const user = await User.findOne({ email }) || null;
+        
+      if(user === null){
+        return res.json({
+          success: false,
+          message: 'Error al obtener usuario'
+        });
+      }
+        
+      if(code !== user.code){
+        return res.redirect('/error.html');
+      }
+        
+      newUser.verified = true;
+      await newUser.save();
+      return res.redirect('/confirm.html');  
+    
+        } catch (error) {
+    
+          console.log(error);
+          return res.json({
+                success: false,
+                message: 'Error al confirmar'
+            
+          })
+        }
+}));
