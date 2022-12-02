@@ -1,5 +1,6 @@
 const { body, validationResult } = require("express-validator");
 const fs = require("fs");
+const { isString } = require("util");
 
 const validate = validations => {
     return async (req, res, next) => {
@@ -86,8 +87,15 @@ const validatePostSignup = validateSignUp([
     body('emergencyName')
       .exists().withMessage('emergencyName is required').bail()
       .isString().withMessage('invalid emergencyName').bail()
-      .isLength({ min:2  , max: 20}).withMessage('emergencyContact must be 2 characters minimum and 20 maximum').bail()
+      .isLength({ min:2  , max: 20}).withMessage('emergencyContact must be 2 characters minimum and 20 maximum').bail(),
 
+    body('lat')
+        .exists().withMessage('lat is required').bail()
+        .isString().withMessage('invalid lat').bail(),
+
+    body('lng')
+        .exists().withMessage('lng is required').bail()
+        .isString().withMessage('invalid lng').bail()
     
 ]);
 

@@ -22,7 +22,8 @@ class Destination extends Sequelize.Model {
     },
     name: {
       type: DataTypes.STRING(20),
-      allowNull: true
+      allowNull: true,
+      defaultValue: "Por defecto"
     },
     lat: {
       type: DataTypes.DECIMAL(8,6),

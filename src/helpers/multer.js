@@ -13,6 +13,7 @@ let storage = multer.diskStorage({
       cb(null, __basedir + "/public/images/");
     },
     filename: (req, file, cb) => {
+      file.originalname = file.originalname.replace(/\s/g, '');
       file.newFileName = `${file.originalname.slice(0, file.originalname.indexOf("."))}-${Date.now()}-profile`;
       cb(null, `${file.newFileName}`);
     },

@@ -8,6 +8,7 @@ const authSecret = require('./authSecret');
 const fs = require("fs");
 
 const User = require('../models/User.js')(sequelize,DataTypes);
+const Destination = require('../models/Destination.js')(sequelize,DataTypes);
 
 module.exports = (passport) => {
 
@@ -68,11 +69,24 @@ passport.use('signup',new localStrategy({
             photo: 'images/'+req.file.filename,
             emergencyContact: req.body.emergencyContact,
             emergencyName: req.body.emergencyName
-          });
-          
-          console.log(newUser);
+          });          
           
           await newUser.save();
+
+          const userID = newUser.id;       
+
+          const lat = parseFloat(req.body.lat);
+          const lng = parseFloat(req.body.lng);
+
+
+          const newDestination = Destination.build({
+            userID: userID,
+            lat: lat,
+            lng: lng,
+            DNumber: 1
+          });
+          
+          await newDestination.save();          
 
           return done(null, newUser, { message: 'User created succesfuly' });
         } catch (error) {
