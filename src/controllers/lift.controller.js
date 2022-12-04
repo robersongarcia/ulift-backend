@@ -7,6 +7,16 @@ const Driver = require('../models/Driver.js')(sequelize,DataTypes);
 const Route = require('../models/Route.js')(sequelize,DataTypes);
 
 const getMatch = async (req, res, next) => {
+    try {
+
+        const activeRoutes = 'working'
+        
+    } catch (error) {
+        next(error);            
+    }
+}
+
+const oldMatch = async (req, res, next) => {
 
     //lifts array
     const lifts = [];
@@ -53,8 +63,6 @@ const getMatch = async (req, res, next) => {
         message: 'active lifts',
         lifts
     });
-
-
 }
 
 module.exports = {

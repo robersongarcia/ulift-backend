@@ -30,7 +30,8 @@ class Route extends Sequelize.Model {
     },
     active: {
       type: DataTypes.BOOLEAN,
-      allowNull: true
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,

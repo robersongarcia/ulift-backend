@@ -4,6 +4,7 @@ const User = require('../models/User.js')(sequelize,DataTypes);
 const Lift = require('../models/Lift.js')(sequelize,DataTypes);
 const Vehicle = require('../models/Vehicle.js')(sequelize,DataTypes);
 const Driver = require('../models/Driver.js')(sequelize,DataTypes);
+const Route = require('../models/Route.js')(sequelize,DataTypes);
 
 const getProfile = async (req, res, next) => {
     try {
@@ -11,12 +12,16 @@ const getProfile = async (req, res, next) => {
         const trips = await Lift.findAll(
             { attributes: [
                 [sequelize.fn('COUNT', sequelize.col('liftID')), 'n_trips']
-            ]}, 
-            { where: 
-                { passangerID: req.user.id }
+            ],  where: 
+                { passengerID: req.user.id }
             });
 
-        req.user.dataValues.trips = trips[0].dataValues.n_trips;
+        if(trips.length > 0){
+            req.user.dataValues.trips = trips[0].dataValues.n_trips;
+        }else{
+            req.user.dataValues.trips = 0;
+        }
+        
         
         res.json({
             success: true,
@@ -59,9 +64,24 @@ const postVehicle = async (req, res, next) => {
                 vehicle
             })
         }else{
-            res.status(400).json({
-                success: false,
-                message: 'you are not a driver'
+            const newDriver = await Driver.create({
+                driverID: req.user.id,
+                status: 'I',
+                availability: 0
+            });
+
+            const vehicle = await Vehicle.create({
+                plate,
+                model,
+                color,
+                driverID: req.user.id,
+                seats
+            });
+    
+            res.json({
+                success: true,
+                message: 'vehicle created',
+                vehicle
             })
         }
 
@@ -92,8 +112,66 @@ const getVehicles = async (req, res, next) => {
     }
 }
 
+const getRoutes = async (req, res, next) => {
+    try {
+        const routes = await Route.findAll({where: {driverID: req.user.id}});
+        if(routes.length > 0){
+            res.json({
+                success: true,
+                message: 'routes of the user',
+                routes
+            });
+        }else{
+            res.status(400).json({
+                success: false,
+                message: 'you have no routes'
+            })
+        }
+        
+    } catch (error) {
+        next(error);
+    }
+}
+
+const postRoute = async (req, res, next) => {
+    try {
+        const {path,name} = req.body;
+        const driver = await Driver.findOne({where: {driverID: req.user.id}});
+        if(driver){
+            const route = await Route.build({
+                path: JSON.stringify(path),
+                name,
+                driverID: req.user.id,
+                rNumber: (await Route.count({where: {driverID: req.user.id}}) + 1)
+            });
+
+            if(route.rNumber == 1){
+                console.log(route);
+                route.dataValues.active = 1;
+            }
+
+            await route.save();            
+
+            res.status(200).json({
+                success: true,
+                message: 'route created'
+            })
+
+        }else{
+            res.status(400).json({
+                success: false,
+                message: 'you have no vehicles, you are not a driver'
+            })
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProfile,
     postVehicle,
-    getVehicles
+    getVehicles,
+    getRoutes,
+    postRoute
 };
