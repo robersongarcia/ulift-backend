@@ -46,13 +46,17 @@ class Lift extends Sequelize.Model {
       type: DataTypes.TIME,
       allowNull: false
     },
-    destination: {
-      type: DataTypes.STRING(30),
-      allowNull: false
-    },
     seats: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    destLat: {
+      type: DataTypes.DECIMAL(8,6),
+      allowNull: true
+    },
+    destLng: {
+      type: DataTypes.DECIMAL(9,6),
+      allowNull: true
     }
   }, {
     sequelize,

@@ -35,6 +35,7 @@ app.use('/api/lift', passport.authenticate('jwt', {session: false}), lift);
 
 app.listen(PORT, async () => {
     console.log(`App listening on port ${PORT}`);
+    console.log('Press Ctrl+C to quit.');
     try {
         await sequelize.authenticate();     
         console.log('Connection to db has been established successfully.');
