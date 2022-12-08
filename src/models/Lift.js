@@ -50,12 +50,8 @@ class Lift extends Sequelize.Model {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    destLat: {
-      type: DataTypes.DECIMAL(8,6),
-      allowNull: true
-    },
-    destLng: {
-      type: DataTypes.DECIMAL(9,6),
+    rdNumber: {
+      type: DataTypes.INTEGER,
       allowNull: true
     }
   }, {
