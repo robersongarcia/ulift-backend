@@ -15,7 +15,7 @@ class Destination extends Sequelize.Model {
         key: 'id'
       }
     },
-    DNumber: {
+    dNumber: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
@@ -44,7 +44,7 @@ class Destination extends Sequelize.Model {
         using: "BTREE",
         fields: [
           { name: "userID" },
-          { name: "DNumber" },
+          { name: "dNumber" },
         ]
       },
     ]
