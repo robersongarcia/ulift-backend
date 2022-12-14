@@ -5,6 +5,8 @@ const Lift = require('../models/Lift.js')(sequelize,DataTypes);
 const Vehicle = require('../models/Vehicle.js')(sequelize,DataTypes);
 const Driver = require('../models/Driver.js')(sequelize,DataTypes);
 const Route = require('../models/Route.js')(sequelize,DataTypes);
+const WaitingList = require('../models/Waiting_List.js')(sequelize,DataTypes);
+
 const {getDistance} = require('../helpers/utils');
 
 const getMatch = async (req, res, next) => {
@@ -73,6 +75,135 @@ const getMatch = async (req, res, next) => {
     }
 };
 
+const createLift = async (req, res, next) => {
+    try {
+        const driver = await Driver.findOne({
+            where: {
+                driverID: req.user.id
+            }
+        });
+
+        if(driver === null){
+            res.status(400).json({
+                success: false,
+                message: 'driver not found'
+            });
+            return;
+        }
+
+        if(driver.availability == false){
+            res.status(400).json({
+                success: false,
+                message: 'driver not available'
+            });
+            return;
+        }
+
+        if(driver.status == 'A'){
+            res.status(400).json({
+                success: false,
+                message: 'driver have an active lift'
+            });
+            return;
+        }
+
+        const vehicle = await Vehicle.findOne({
+            where: {
+                plate: req.body.plate,
+                driverID: req.user.id
+            }
+        });
+        
+        if(vehicle === null){
+            res.status(400).json({
+                success: false,
+                message: 'vehicle not found'
+            });
+            return;
+        }
+
+        const route = await Route.findOne({
+            where: {
+                driverID: req.user.id,
+                rNumber: req.body.rNumber
+            }
+        });
+
+        if(route === null){
+            res.status(400).json({
+                success: false,
+                message: 'route not found'
+            });
+            return;
+        }
+
+        if(route.active == false){
+            route.active = true;
+            await route.save();
+        }
+
+        const lift = await Lift.create({
+            driverID: req.user.id,
+            plate: req.body.plate,
+            seats: req.body.seats,
+            passengerID: req.user.id,
+            rdNumber: route.rNumber,
+            liftID: ((await Lift.max('liftID')) + 1),
+        });
+        
+        driver.status = 'A';
+        driver.waitingTime = req.body.waitingTime;
+        await driver.save();
+
+        res.json({
+            success: true,
+            message: 'lift created',
+            lift: lift
+        });
+    }
+    catch (error) {
+        next(error);
+    };
+};
+
+const getLiftRequests = async (req, res, next) => {
+    try {
+        const waiting = await WaitingList.findAll({
+            where: {
+                driverID: req.user.id
+            }
+        });
+        
+        if(waiting.length > 0){
+            
+            const usersRequests = await User.findAll(
+                {attributes: ['email','nameU','lastname','photo','rate','gender','role']},{
+                    where: {
+                        id: waiting.map((w) => w.passengerID)
+                    }                        
+                }
+            );
+
+            res.json({
+                success: true,
+                message: 'lift requests',
+                requests: usersRequests
+            });
+        }else{
+            res.json({
+                success: true,
+                message: 'no lift requests',
+                requests: []
+            });
+        }
+
+    } catch (error) {
+        next(error);
+    };
+};
+
+
 module.exports = {
-    getMatch
+    getMatch,
+    createLift
 }
