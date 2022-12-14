@@ -40,11 +40,13 @@ class Lift extends Sequelize.Model {
     },
     dateL: {
       type: DataTypes.DATEONLY,
-      allowNull: false
+      allowNull: false,
+      defaultValue: Sequelize.Sequelize.literal('cast(current_timestamp() - interval 4 hour as date)')
     },
     timeL: {
       type: DataTypes.TIME,
-      allowNull: false
+      allowNull: false,
+      defaultValue: Sequelize.Sequelize.literal('cast(current_timestamp() - interval 4 hour as time)')
     },
     seats: {
       type: DataTypes.INTEGER,

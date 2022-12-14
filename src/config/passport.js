@@ -83,7 +83,7 @@ passport.use('signup',new localStrategy({
             userID: userID,
             lat: lat,
             lng: lng,
-            DNumber: 1
+            dNumber: 1
           });
           
           await newDestination.save();          
