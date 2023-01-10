@@ -16,7 +16,7 @@ const getMatch = async (req, res, next) => {
     const lng = req.params.lng;
     const destination = {lat,lng};
     const wOnly = parseInt(req.params.wOnly);
-    const maxD = 0;
+    let maxD = 0;
     if(typeof req.params.maxD ==! 'undefined'){
         maxD = parseFloat(req.params.maxD);
     }
