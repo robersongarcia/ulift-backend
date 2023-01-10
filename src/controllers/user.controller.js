@@ -1,11 +1,14 @@
 const sequelize = require('../config/database.js');
 const { DataTypes } = require('sequelize');
+const { request } = require('express');
+const Waiting_List = require('../models/Waiting_List.js');
 const User = require('../models/User.js')(sequelize,DataTypes);
 const Lift = require('../models/Lift.js')(sequelize,DataTypes);
 const Vehicle = require('../models/Vehicle.js')(sequelize,DataTypes);
 const Driver = require('../models/Driver.js')(sequelize,DataTypes);
 const Route = require('../models/Route.js')(sequelize,DataTypes);
 const Destination = require('../models/Destination.js')(sequelize,DataTypes);
+const WaitingList = require('../models/Waiting_List.js')(sequelize,DataTypes);
 
 const getProfile = async (req, res, next) => {
     try {
@@ -184,6 +187,8 @@ const postRoute = async (req, res, next) => {
             if(route.rNumber == 1){
                 console.log(route);
                 route.dataValues.active = 1;
+                driver.availability = 1;
+                await driver.save();
             }
 
             await route.save();            
@@ -226,12 +231,13 @@ const getDestination = async (req, res, next) => {
 
 const postDestination = async (req, res, next) => {
     try {
-        const {lat, lng} = req.body;
+        const {lat, lng, name} = req.body;
         const destination = await Destination.build({
             lat: (parseFloat(lat)),
             lng: (parseFloat(lng)),
             userID: req.user.id,
-            dNumber: (await Destination.count({where: {userID: req.user.id}}) + 1)
+            dNumber: (await Destination.count({where: {userID: req.user.id}}) + 1),
+            name: name
         });
 
         await destination.save();
@@ -246,6 +252,122 @@ const postDestination = async (req, res, next) => {
     }
 }
 
+const getStatus = async (req, res, next) => {
+    try {
+        const driver = await Driver.findOne({where: {driverID: req.user.id}});
+        if(driver===null){
+            res.json({
+                success: true,
+                message: 'you are not a driver',
+                status: 'P'
+            });
+            return;
+        }
+
+        if(driver.status === 'I'){
+            res.json({
+                success: true,
+                message: 'driver is inactive',
+                status: 'P'
+            });
+            return;
+        }
+
+        if(driver.status === 'A' || driver.status === 'P'){
+            res.json({
+                success: true,
+                message: 'driver is active',
+                status: 'D'
+            });
+            return;
+        }
+
+        res.json({
+            success: true,
+            message: 'you are a passanger',
+            status: 'P'});
+
+
+    } catch (error) {
+        next(error);
+    };    
+};
+
+const getMode = async (req, res, next) => {
+    try {
+
+        /*
+            modos
+            E <- conductor con cola activa en espera de solicitudes
+            P <- conductor con cola en proceso, la parte de los checks
+            L <- pasajero aceptado en una cola
+            R <- pasajero esta haciendo una peticion de cola
+            F <- no esta en ninguna actividad
+        */
+        
+        const driver = await Driver.findOne({where: {driverID: req.user.id}});
+        if(driver!==null){
+            if(driver.status == 'A'){
+                res.json({
+                    success: true,
+                    message: 'driver is active',
+                    mode: 'E'
+                });
+                return;
+            }
+
+            if(driver.status == P){
+                res.json({
+                    success: true,
+                    message: 'driver is in process',
+                    mode: 'P'
+                });
+                return;
+            }
+        }
+
+        const lift = await Lift.findOne({
+            where: {
+                passengerID: req.user.id,
+                complete: false
+            }
+        });
+
+        if(lift !== null){
+            res.json({
+                success: true,
+                message: 'passenger is in a lift',
+                mode: 'L'
+            });
+            return;
+        }
+
+        const request = await WaitingList.findOne({
+            where: {
+                passengerID: req.user.id,
+            }
+        });
+
+        if(request !== null){
+            res.json({
+                success: true,
+                message: 'passenger is in a request',
+                mode: 'R'
+            });
+            return;
+        }
+
+        res.json({
+            success: true,
+            message: 'its free',
+            mode: 'F'
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProfile,
     postVehicle,
@@ -253,5 +375,7 @@ module.exports = {
     getRoutes,
     postRoute,
     getDestination,
-    postDestination
+    postDestination,
+    getStatus,
+    getMode
 };

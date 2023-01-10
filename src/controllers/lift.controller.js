@@ -8,24 +8,43 @@ const Route = require('../models/Route.js')(sequelize,DataTypes);
 const WaitingList = require('../models/Waiting_List.js')(sequelize,DataTypes);
 
 const {getDistance} = require('../helpers/utils');
+const { body } = require('express-validator');
 
 const getMatch = async (req, res, next) => {
     try {
     const lat = req.params.lat;
     const lng = req.params.lng;
     const destination = {lat,lng};
+    const wOnly = parseInt(req.params.wOnly);
+    const maxD = 0;
+    if(typeof req.params.maxD ==! 'undefined'){
+        maxD = parseFloat(req.params.maxD);
+    }
 
-    const activeRoutes = await sequelize.query('SELECT l.liftID as liftID, u.email as email, u.nameU as name, u.lastname as lastname, u.photo as photo,d.waitingTime as waitingTime, u.rate as rate, l.dateL as date, l.timeL as time, v.plate as plate, v.model as model,v.color as color, v.seats as seats, r.path as path FROM User u, Driver d, Route r,Lift l, Vehicle v WHERE u.id = d.driverID AND d.status = \'A\' AND d.availability = true AND r.driverID = d.driverID AND r.active = true AND l.driverID = d.driverID AND l.liftID = (SELECT liftID FROM Lift ll WHERE ll.driverID = d.driverID ORDER BY liftID DESC LIMIT 1) AND l.plate = v.plate',{
+    const activeRoutes = await sequelize.query('SELECT l.liftID as liftID, u.email as email, u.nameU as name, u.lastname as lastname, u.photo as photo,d.waitingTime as waitingTime, u.gender as gender, u.rate as rate, l.dateL as date, l.timeL as time, v.plate as plate, v.model as model,v.color as color, v.seats as seats, r.path as path FROM User u, Driver d, Route r,Lift l, Vehicle v WHERE u.id = d.driverID AND d.status = \'A\' AND d.availability = true AND r.driverID = d.driverID AND r.active = true AND l.driverID = d.driverID AND l.liftID = (SELECT liftID FROM Lift ll WHERE ll.driverID = d.driverID ORDER BY liftID DESC LIMIT 1) AND l.plate = v.plate',{
         type: QueryTypes.SELECT
     });
 
+    if(wOnly){
+        activeRoutes = activeRoutes.filter(route => route.gender === 'F');
+    }
+
+    if(!lat && !lng){
+        res.json({
+            success: true,
+            message: 'all lifts',
+            lifts: activeRoutes
+        });
+        return;
+    }
+
     let optRoutes = [];
 
-    if(req.body.maxDistance){
+    if(maxD){
         for(let i = 0 ; i < activeRoutes.length; i++){
-            for(let j = 0; j < activeRoutes[i].path.length; j++){
+            for(let j = 0; j < activeRoutes[i].path.length; j++){                
                 const distance = getDistance(activeRoutes[i].path[j],destination);
-                if(distance <= req.body.maxDistance){
+                if(distance <= maxD){                    
                     activeRoutes[i].distanceLastNode = getDistance(activeRoutes[i].path[activeRoutes[i].path.length-1],destination);
                     optRoutes.push(activeRoutes[i]);
                     break;
@@ -177,7 +196,7 @@ const getLiftRequests = async (req, res, next) => {
         if(waiting.length > 0){
             
             const usersRequests = await User.findAll(
-                {attributes: ['email','nameU','lastname','photo','rate','gender','role']},{
+                {attributes: ['id','email','nameU','lastname','photo','rate','gender','role']},{
                     where: {
                         id: waiting.map((w) => w.passengerID)
                     }                        
@@ -202,8 +221,341 @@ const getLiftRequests = async (req, res, next) => {
     };
 };
 
+const acceptLiftRequest = async (req, res, next) => {
+    try {
+        const passenger = await User.findOne({
+            where: {
+                id: req.body.id
+            }
+        });
+
+        if(passenger === null){
+            res.status(400).json({
+                success: false,
+                message: 'passenger not found'
+            });
+            return;
+        }
+
+
+        const lift = await Lift.findOne({
+            where: {
+                driverID: req.user.id,
+                passengerID: req.user.id,
+                complete: false
+            }
+        });
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message: 'lift not found'
+            });
+        }
+
+        const passangerLift = await Lift.findOne({
+            where: {
+                passengerID: passenger.id,
+                complete:false
+            }
+        });
+
+        if(passangerLift !== null){
+            res.status(400).json({
+                success: false,
+                message: 'passenger have an active lift'
+            });
+            return;
+        }
+
+        //query for get seats available of the lift
+        const seatsAvailable = await sequelize.query('SELECT (seats-(SELECT COUNT(liftID) FROM Lift WHERE driverID = :driver AND passengerID != :driver AND complete = false)) as seats FROM Lift WHERE driverID = :driver AND passengerID = :driver AND complete = false;',{
+            replacements: {driver: req.user.id},
+            type: QueryTypes.SELECT
+        })
+        
+        if(seatsAvailable[0].seats <= 0){
+            res.status(400).json({
+                success: false,
+                message: 'no seats available'
+            });
+            return;
+        }
+
+        const newLift = await Lift.create({
+            driverID: req.user.id,
+            plate: lift.plate,
+            seats: seatsAvailable[0].seats-1,
+            passengerID: req.body.id,
+            rdNumber: req.body.dNumber,
+            liftID: lift.liftID,
+        });
+
+        res.json({
+            success: true,
+            message: 'passanger accepted',
+            lift: newLift
+        }
+        );                 
+
+    }catch (error) {
+        next(error);
+    }
+};
+
+const postRequestLift = async (req, res, next) => {
+    try {
+
+        //gets liftID
+        const lift = await Lift.findOne({
+            where: {
+                LiftID: req.body.liftID
+            }
+        });
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message: 'lift not found'
+            });
+            return;
+        }
+
+        console.log(lift);
+
+        const request = await WaitingList.create({
+            passengerID: req.user.id,
+            driverID: lift.driverID
+        });
+
+        if(request === null){
+            res.status(400).json({
+                success: false,
+                message: 'request not created'
+            });
+            return;
+        }
+
+        res.json({
+            success: true,
+            message: 'request sent'
+        });
+
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const cancelLift = async (req, res, next) => {
+    try {
+        const lifts = await Lift.findAll({
+            where: {
+                LiftID: req.body.liftID,
+                driverID: req.user.id,
+                complete: false
+            }
+        });
+        
+        if(lifts === null){
+            res.status(400).json({
+                success: false,
+                message: 'lifts not found'
+            });
+            return;
+        }
+
+        //delete all lifts
+         lifts.forEach(async (lift) => {
+            await lift.destroy();
+        });
+
+        //get driver of the lift
+        const driver = await Driver.findOne({        
+            where: {
+                driverID: req.user.id
+            }
+        });
+
+        //change driver status to I
+        driver.status = 'I';
+        await driver.save();
+
+        res.json({
+            success: true,
+            message: 'lifts canceled'
+        });
+        
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const cancelRequest = async (req , res ,next) => {
+    try {
+        
+        const request = WaitingList.findOne({
+            where: {
+                passengerID: req.user.id
+            }
+        });
+        
+        if(request === null){
+            res.status(400).json({
+                success: false,
+                message: 'request not found'
+            });
+            return;
+        }
+
+        await request.destroy();
+
+        res.json({
+            success: true,
+            message: 'request canceled'
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getPassengers = async (req, res, next) => {
+    try {
+        //get lift by id on params
+        const {liftID} = req.params;
+
+        const lift = await Lift.findAll({
+            where: {
+                liftID: liftID
+            }
+        });
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message: 'lift not found'
+            });
+            return;
+        }
+
+        //get passengers of the lift
+        const passengers = await User.findAll({
+            where: {
+                id: lift.map((l) => {
+                    if(l.passengerID === l.driverID){
+                        return ;
+                    }
+                    return l.passengerID;
+                })
+            }
+        });
+
+        if(passengers === null){
+            res.status(400).json({
+                success: false,
+                message: 'passengers not found'
+            });
+            return;
+        }
+
+        res.json({
+            success: true,
+            message: 'passengers',
+            passengers: passengers
+        });
+
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const liftCompleteCheck = async (req, res, next) => {
+    try {
+
+        const lift = await Lift.findOne({
+            where: {
+                passengerID: req.user.id,
+                complete: false
+            }
+        });
+
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message:'no lift'
+            });
+            return;
+        }
+
+        lift.complete = true;
+        await lift.save();
+
+        res.json({
+            success: true,
+            message: 'lift complete'
+        });
+
+    } catch (error) {
+        next(error);
+    }  
+};
+
+const driverCheck = async (req, res, next) => {
+    try {
+        const {passengerID} = req.params;
+        
+        const lift = await Lift.findOne({
+            where: {
+                driverID: req.user.id,
+                complete: false,
+                passengerID: req.user.id
+            }
+        });
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message: 'no lift'
+            });
+            return;
+        }
+
+        const passLift = await Lift.findOne({
+            where: {
+                passengerID: passengerID,
+                liftID: lift.liftID,
+            }
+        });
+
+        passLift.driverCheck = true;
+        await passLift.save();
+
+        res.json({
+            success: true,
+            message: 'passengerChecked'
+        });
+
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+    
 
 module.exports = {
     getMatch,
-    createLift
+    createLift,
+    getLiftRequests,
+    acceptLiftRequest,
+    postRequestLift,
+    cancelLift,
+    cancelRequest,
+    getPassengers,
+    liftCompleteCheck,
+    driverCheck
 }

@@ -55,10 +55,21 @@ class Lift extends Sequelize.Model {
     rdNumber: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    complete: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: 0
+    },
+    driverCheck: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,
     tableName: 'Lift',
+    hasTrigger: true,
     timestamps: false,
     indexes: [
       {
