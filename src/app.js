@@ -1,7 +1,9 @@
 const express =  require('express');
 const logger = require('morgan');
 const passport = require('passport');
-const cors = require('cors')
+const cors = require('cors');
+const http = require("http");
+const { Server } = require("socket.io");
 const sequelize = require('./config/database');
 const initModels = require('./models/init-models')(sequelize);
 path = require('path');
@@ -42,6 +44,27 @@ app.listen(PORT, async () => {
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
+});
+
+//server
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"],
+    },
+});
+
+io.on("connection", (socket) =>{
+    console.log(socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("User disconnected ", socket.id);
+    });    
+});
+
+server.listen(3001, () => {
+    console.log("SERVER RUNNING");
 });
 
 // Default message
