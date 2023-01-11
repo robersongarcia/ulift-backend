@@ -21,7 +21,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));  
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 //routes
 const auth = require('./routes/auth.routes');
@@ -56,7 +56,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) =>{
-    console.log(socket.id);
+    console.log("User connected ", socket.id);
 
     socket.on("disconnect", () => {
         console.log("User disconnected ", socket.id);
