@@ -610,6 +610,16 @@ const startLift = async (req, res, next) => {
     }
 };
     
+const liftHistory = async (req, res, next) =>{
+    res.json({
+        liftsConductor: [await sequelize.query('SELECT l.liftID as liftID, u.email as email, u.nameU as name, u.lastname as lastname, u.photo as photo, r.name as routename, d.waitingTime as waitingTime, u.rate as rate, l.dateL as date, l.timeL as time, v.plate as plate, v.model as model,v.color as color, v.seats as seats, r.path as path FROM User u, Driver d, Route r,Lift l, Vehicle v WHERE l.driverID = ' + req.user.id +' AND l.driverID = l.passengerID AND u.id = d.driverID AND d.status = \'A\' AND d.availability = true AND r.driverID = d.driverID AND r.active = true AND l.driverID = d.driverID AND l.liftID = (SELECT liftID FROM Lift ll WHERE ll.driverID = d.driverID ORDER BY liftID DESC LIMIT 1) AND l.plate = v.plate',{
+    type: QueryTypes.SELECT
+    })],
+        liftsPasajero: [await sequelize.query('SELECT l.liftID as liftID, u.email as email, u.nameU as name, u.lastname as lastname, u.photo as photo, r.name as routename, d.waitingTime as waitingTime, u.rate as rate, l.dateL as date, l.timeL as time, v.plate as plate, v.model as model,v.color as color, v.seats as seats, r.path as path FROM User u, Driver d, Route r,Lift l, Vehicle v WHERE l.passengerID = ' + req.user.id +' AND l.driverID != l.passengerID AND u.id = d.driverID AND d.status = \'A\' AND d.availability = true AND r.driverID = d.driverID AND r.active = true AND l.driverID = d.driverID AND l.liftID = (SELECT liftID FROM Lift ll WHERE ll.driverID = d.driverID ORDER BY liftID DESC LIMIT 1) AND l.plate = v.plate',{
+    type: QueryTypes.SELECT
+        })]
+});
+}
 
 module.exports = {
     getMatch,
@@ -622,5 +632,8 @@ module.exports = {
     getPassengers,
     liftCompleteCheck,
     driverCheck,
-    startLift
+    startLift,
+    liftHistory
 }
+    
+
