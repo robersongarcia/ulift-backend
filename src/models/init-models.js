@@ -1,20 +1,26 @@
 const DataTypes = require("sequelize").DataTypes;
+const _Chat_historial = require("./Chat_historial");
 const _Destination = require("./Destination");
 const _Driver = require("./Driver");
 const _Favorites = require("./Favorites");
 const _Lift = require("./Lift");
+const _Messages = require("./Messages");
 const _Rate_Comment = require("./Rate_Comment");
+const _Rating = require("./Rating");
 const _Route = require("./Route");
 const _User = require("./User");
 const _Vehicle = require("./Vehicle");
 const _Waiting_List = require("./Waiting_List");
 
 function initModels(sequelize) {
+  const Chat_historial = _Chat_historial(sequelize, DataTypes);
   const Destination = _Destination(sequelize, DataTypes);
   const Driver = _Driver(sequelize, DataTypes);
   const Favorites = _Favorites(sequelize, DataTypes);
   const Lift = _Lift(sequelize, DataTypes);
+  const Messages = _Messages(sequelize, DataTypes);
   const Rate_Comment = _Rate_Comment(sequelize, DataTypes);
+  const Rating = _Rating(sequelize, DataTypes);
   const Route = _Route(sequelize, DataTypes);
   const User = _User(sequelize, DataTypes);
   const Vehicle = _Vehicle(sequelize, DataTypes);
@@ -22,8 +28,12 @@ function initModels(sequelize) {
 
   Driver.belongsToMany(User, { as: 'passengerID_Users', through: Waiting_List, foreignKey: "driverID", otherKey: "passengerID" });
   User.belongsToMany(Driver, { as: 'driverID_Drivers', through: Waiting_List, foreignKey: "passengerID", otherKey: "driverID" });
+  User.belongsToMany(User, { as: 'receiverID_Users', through: Chat_historial, foreignKey: "senderID", otherKey: "receiverID" });
+  User.belongsToMany(User, { as: 'senderID_Users', through: Chat_historial, foreignKey: "receiverID", otherKey: "senderID" });
   User.belongsToMany(User, { as: 'userID2_Users', through: Favorites, foreignKey: "userID1", otherKey: "userID2" });
   User.belongsToMany(User, { as: 'userID1_Users', through: Favorites, foreignKey: "userID2", otherKey: "userID1" });
+  User.belongsToMany(User, { as: 'receiverID_User_Ratings', through: Rating, foreignKey: "raterID", otherKey: "receiverID" });
+  User.belongsToMany(User, { as: 'raterID_Users', through: Rating, foreignKey: "receiverID", otherKey: "raterID" });
   Route.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
   Driver.hasMany(Route, { as: "Routes", foreignKey: "driverID"});
   Waiting_List.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
@@ -36,6 +46,10 @@ function initModels(sequelize) {
   Lift.hasMany(Rate_Comment, { as: "plate_Rate_Comments", foreignKey: "plate"});
   Rate_Comment.belongsTo(Lift, { as: "lift", foreignKey: "liftID"});
   Lift.hasMany(Rate_Comment, { as: "lift_Rate_Comments", foreignKey: "liftID"});
+  Chat_historial.belongsTo(User, { as: "sender", foreignKey: "senderID"});
+  User.hasMany(Chat_historial, { as: "Chat_historials", foreignKey: "senderID"});
+  Chat_historial.belongsTo(User, { as: "receiver", foreignKey: "receiverID"});
+  User.hasMany(Chat_historial, { as: "receiver_Chat_historials", foreignKey: "receiverID"});
   Destination.belongsTo(User, { as: "user", foreignKey: "userID"});
   User.hasMany(Destination, { as: "Destinations", foreignKey: "userID"});
   Driver.belongsTo(User, { as: "driver", foreignKey: "driverID"});
@@ -46,6 +60,10 @@ function initModels(sequelize) {
   User.hasMany(Favorites, { as: "userID2_Favorites", foreignKey: "userID2"});
   Lift.belongsTo(User, { as: "passenger", foreignKey: "passengerID"});
   User.hasMany(Lift, { as: "Lifts", foreignKey: "passengerID"});
+  Rating.belongsTo(User, { as: "rater", foreignKey: "raterID"});
+  User.hasMany(Rating, { as: "Ratings", foreignKey: "raterID"});
+  Rating.belongsTo(User, { as: "receiver", foreignKey: "receiverID"});
+  User.hasMany(Rating, { as: "receiver_Ratings", foreignKey: "receiverID"});
   Vehicle.belongsTo(User, { as: "driver", foreignKey: "driverID"});
   User.hasMany(Vehicle, { as: "Vehicles", foreignKey: "driverID"});
   Waiting_List.belongsTo(User, { as: "passenger", foreignKey: "passengerID"});
@@ -56,11 +74,14 @@ function initModels(sequelize) {
   Vehicle.hasMany(Lift, { as: "plate_Lifts", foreignKey: "plate"});
 
   return {
+    Chat_historial,
     Destination,
     Driver,
     Favorites,
     Lift,
+    Messages,
     Rate_Comment,
+    Rating,
     Route,
     User,
     Vehicle,
