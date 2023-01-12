@@ -18,13 +18,13 @@ let transporter = nodemailer.createTransport({
     }
   });
 
-const sendEmail = async (email, subject,name,token) => {
+const sendEmail = async (email, subject,name,url) => {
     try{
         await transporter.sendMail({
             from: `U-Lift <${email.user}>`,
             to: email,
             subject,
-            text: 'Probando',
+            text: 'Autenticación de Usuario',
             html: `
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -36,7 +36,7 @@ const sendEmail = async (email, subject,name,token) => {
                     Confirmacion de Usuario
                 </h1>
                 <h2> Hola ${name} </h2>
-                <a href="http://localhost:3000/api/user/confirm/${token}"> Click Aqui para Confirmar</a>
+                <a href="${url}"> Click Aqui para Confirmar</a>
             </div>`,
         });
     } catch (error) {

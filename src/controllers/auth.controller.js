@@ -54,31 +54,7 @@ const postSignup = async (req, res, next) => {
     })(req, res, next);
 };
 
-const confirmMethod = async(req, res) => {
-    passport.authenticate('confirm',  async (err, user, info) => {
-        try{
-            if (err) {
-                const error = new Error('An error occurred. Confirm');
-                return next(error);
-            }
-
-            const message = info.message;
-
-            if(!user){
-                res.status(401).json({success: false, message});
-                return
-            }
-
-            return res.json({success: true, message});
-        }
-        catch(error){
-            return next(error);
-        }
-    })(req, res);
-};
-
 module.exports = {
     postLogin,
-    postSignup,
-    confirmMethod
+    postSignup
 };
