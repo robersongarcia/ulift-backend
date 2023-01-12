@@ -328,6 +328,20 @@ const postRequestLift = async (req, res, next) => {
 
         console.log(lift);
 
+        const wait = await WaitingList.findOne({
+            where: {
+                passengerID: req.user.id,
+            }
+        });
+
+        if(wait !== null){
+            res.status(400).json({
+                success: false,
+                message: 'passenger already in waiting list'
+            });
+            return;
+        }
+
         const request = await WaitingList.create({
             passengerID: req.user.id,
             driverID: lift.driverID
