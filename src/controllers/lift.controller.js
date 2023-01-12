@@ -564,6 +564,51 @@ const driverCheck = async (req, res, next) => {
     }
 };
 
+const startLift = async (req, res, next) => {
+    try {
+
+        const driver = await Driver.findOne({
+            where:{
+                driverID: req.user.id            
+            }
+        });
+
+        if(driver === null){
+            res.status(400).json({
+                success: false,
+                message: 'driver not found'
+            });
+            return;
+        }
+
+        const lift = await Lift.findOne({
+            where: {
+                driverID: req.user.id,
+                complete: false
+            }
+        });
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message: 'lift not found'
+            });
+            return;
+        }
+
+        driver.status = 'P';
+
+        await driver.save();
+
+        res.json({
+            success: true,
+            message: 'lift started'
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
     
 
 module.exports = {
@@ -576,5 +621,6 @@ module.exports = {
     cancelRequest,
     getPassengers,
     liftCompleteCheck,
-    driverCheck
+    driverCheck,
+    startLift
 }

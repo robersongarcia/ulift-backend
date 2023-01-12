@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getMatch, createLift, getLiftRequests, acceptLiftRequest, postRequestLift, cancelLift, cancelRequest, getPassengers, liftCompleteCheck, driverCheck } = require('../controllers/lift.controller');
+const { getMatch, createLift, getLiftRequests, acceptLiftRequest, postRequestLift, cancelLift, cancelRequest, getPassengers, liftCompleteCheck, driverCheck, startLift } = require('../controllers/lift.controller');
 
 
 router.get('/match/:wOnly/:lat/:lng/:maxD', getMatch);
@@ -22,5 +22,7 @@ router.get('/passengers/:liftID', getPassengers);
 router.post('/complete', liftCompleteCheck);
 
 router.post('/driverCheck/:passengerID', driverCheck);
+
+router.post('/start', startLift)
 
 module.exports = router;

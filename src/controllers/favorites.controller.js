@@ -40,6 +40,28 @@ const postFavorite = async (req, res, next) => {
       return;
     }
 
+    if(user.id === req.user.id){
+      res.status(400).json({
+        success: false,
+        message: 'user cannot be favorite of himself'
+      });
+      return;
+    }
+
+    const exist = await Favorite.findOne({
+      where: {
+        userID1: req.user.id,
+        userID2: user.id
+      }
+    });
+
+    if(exist!==null){
+      res.status(400).json({
+        success: false,
+        message: 'favorite already exists'
+      });
+    }
+
     const favorite = await Favorite.create({
       userID1: req.user.id,
       userID2: user.id
