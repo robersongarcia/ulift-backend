@@ -1,5 +1,6 @@
 const DataTypes = require("sequelize").DataTypes;
 const _Chat_historial = require("./Chat_historial");
+const _Confirmation_Token = require("./Confirmation_Token");
 const _Destination = require("./Destination");
 const _Driver = require("./Driver");
 const _Favorites = require("./Favorites");
@@ -14,6 +15,7 @@ const _Waiting_List = require("./Waiting_List");
 
 function initModels(sequelize) {
   const Chat_historial = _Chat_historial(sequelize, DataTypes);
+  const Confirmation_Token = _Confirmation_Token(sequelize, DataTypes);
   const Destination = _Destination(sequelize, DataTypes);
   const Driver = _Driver(sequelize, DataTypes);
   const Favorites = _Favorites(sequelize, DataTypes);
@@ -75,6 +77,7 @@ function initModels(sequelize) {
 
   return {
     Chat_historial,
+    Confirmation_Token,
     Destination,
     Driver,
     Favorites,
