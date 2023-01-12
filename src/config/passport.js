@@ -1,14 +1,18 @@
 const sequelize = require('../config/database.js');
-const { DataTypes } = require('sequelize');
+const { DataTypes, UUIDV4 } = require('sequelize');
 const localStrategy = require('passport-local').Strategy;
 const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const bcrypt = require('bcryptjs');
 const authSecret = require('./authSecret');
 const fs = require("fs");
+const { sendEmail } = require('./mail.config.js');
+const { getToken, getTokenData } = require('./jwt.config.js');
+const passport = require('passport');
 
 const User = require('../models/User.js')(sequelize,DataTypes);
 const Destination = require('../models/Destination.js')(sequelize,DataTypes);
+const Confirmation_Token = require('../models/Confirmation_Token.js')(sequelize,DataTypes);
 
 module.exports = (passport) => {
 
@@ -69,9 +73,29 @@ passport.use('signup',new localStrategy({
             photo: 'images/'+req.file.filename,
             emergencyContact: req.body.emergencyContact,
             emergencyName: req.body.emergencyName
-          });          
+          });
           
-          await newUser.save();
+          console.log(newUser);
+
+          var date = new Date();
+          var mail = {
+              "email": newUser.email,
+              "created": date.toString()
+          }
+
+        const token_mail_verification = getToken(mail);
+        
+        const newConfTok = Confirmation_Token.build({
+          token: token_mail_verification
+        });
+
+        newConfTok.save();
+
+        var url = "http://localhost:3000/api/" + "verify?email=" + token_mail_verification;
+
+        await sendEmail(email, 'Confirmacion de Usuario', req.body.name, url);
+
+        await newUser.save();
 
           const userID = newUser.id;       
 
@@ -95,6 +119,7 @@ passport.use('signup',new localStrategy({
       }
     ) 
   );
+  
 
   var opts = {};
   opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();

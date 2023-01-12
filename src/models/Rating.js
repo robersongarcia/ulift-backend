@@ -26,15 +26,15 @@ class Rating extends Sequelize.Model {
     },
     rate: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
-    comment: {
+    commentary: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: true
     },
     finished: {
       type: DataTypes.BOOLEAN,
-      allowNull: true
+      allowNull: false
     }
   }, {
     sequelize,

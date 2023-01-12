@@ -149,7 +149,7 @@ const getVehicles = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+}  
 
 const getRoutes = async (req, res, next) => {
     try {

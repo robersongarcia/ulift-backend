@@ -7,7 +7,7 @@ class Confirmation_Token extends Sequelize.Model {
   static init(sequelize, DataTypes) {
   return super.init({
     token: {
-      type: DataTypes.STRING(120),
+      type: DataTypes.STRING(400),
       allowNull: false,
       primaryKey: true
     }
