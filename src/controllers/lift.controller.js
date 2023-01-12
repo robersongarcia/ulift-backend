@@ -196,9 +196,14 @@ const getLiftRequests = async (req, res, next) => {
         if(waiting.length > 0){
             
             const usersRequests = await User.findAll(
-                {attributes: ['id','email','nameU','lastname','photo','rate','gender','role']},{
+                {
                     where: {
-                        id: waiting.map((w) => w.passengerID)
+                        id: waiting.map((w) => {
+                            if(w.driverID == req.user.id){
+                                return w.passengerID;
+                            }
+                                return;
+                        })
                     }                        
                 }
             );

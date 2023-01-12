@@ -21,4 +21,7 @@ const getFavorites = async (req, res, next) => {
   }
 };
 
+const postFavorite = async (req, res, next) => {
+};
+
 module.exports = { getFavorites };
