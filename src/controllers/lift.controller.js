@@ -156,8 +156,8 @@ const createLift = async (req, res, next) => {
             return;
         }
 
-        if(route.active == false){
-            route.active = true;
+        if(route.active == 0){
+            route.active = 1;
             await route.save();
         }
 
@@ -512,6 +512,16 @@ const liftCompleteCheck = async (req, res, next) => {
 
         lift.complete = true;
         await lift.save();
+
+        if(lift.driverID == lift.passengerID){
+            const driver = await Driver.findOne({
+                where: {
+                    driverID: lift.driverID
+                }
+            });
+            driver.status = 'I';
+            await driver.save();
+        }
 
         res.json({
             success: true,
