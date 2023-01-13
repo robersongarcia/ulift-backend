@@ -6,11 +6,7 @@ const Messages = require('../models/Messages.js')(sequelize,DataTypes);
 
 const getMessages = async (req, res, next) => {
     try {
-        const messages = await Messages.findAll({
-            where: {
-                messageID: messageID
-            }
-        });
+        const messages = await Messages.findAll();        
 
         if (messages === null){
             res.status(400).json({
@@ -21,6 +17,12 @@ const getMessages = async (req, res, next) => {
         } 
         
         console.log(messages);
+
+        res.json({
+            success: true,
+            message: 'messages',
+            messages: messages
+        });
 
     } catch (error) {
         next(error);
