@@ -5,22 +5,35 @@ const User = require('../models/User.js')(sequelize,DataTypes);
 
 const getFavorites = async (req, res, next) => {
   try {
-    const [results, metadata] = await sequelize.query(
-      `SELECT u.nameU, u.photo, u.rate, COUNT(l.liftID) AS n_trips
-      FROM User u, Favorites f, Lift l
-      WHERE (f.userID2 = u.id)
-      AND (u.id = l.passengerID)
-      AND (userID1 = ${req.user.id})`
-    );
+    const favorites = await Favorite.findAll({attributes: ['userID2'],
+      where: { userID1: req.user.id }});
+    
+    const userF = [];
+    for(var k in favorites){
+      userF.push(favorites[k].userID2);
+    }
+
+    const users = await User.findAll({attributes: ['id', 'nameU', 'photo', 'rate'],
+      where: { id: userF }});
+
+    for (var k in users){
+      const [results, metadata] = await sequelize.query(
+        `SELECT COUNT(l.liftID) AS n_trips
+        FROM User u, Lift l
+        WHERE (u.id = l.passengerID)
+        AND (l.passengerID = ${users[k].id})
+        AND (l.complete = 1)`
+      );
+      users[k].dataValues.n_trips = results[0].n_trips;
+    }
     res.json({
       success: true,
       message: 'user favorites',
-      favorites: results
+      favorites: users
     });
-  } catch (error) {
-    next(error);
-  }
-};
+  }catch (error)
+    {message: "Something Wrong Happened" }
+}
 
 const postFavorite = async (req, res, next) => {
   try{
