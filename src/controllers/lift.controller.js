@@ -301,7 +301,7 @@ const acceptLiftRequest = async (req, res, next) => {
             return;
         }
 
-        const newLift = await Lift.create({
+        const newLift = Lift.build({
             driverID: req.user.id,
             plate: lift.plate,
             seats: seatsAvailable[0].seats-1,
@@ -309,6 +309,10 @@ const acceptLiftRequest = async (req, res, next) => {
             rdNumber: req.body.dNumber,
             liftID: lift.liftID,
         });
+
+        console.log(newLift);
+
+        await newLift.save();
 
         res.json({
             success: true,

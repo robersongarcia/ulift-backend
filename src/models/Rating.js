@@ -36,6 +36,7 @@ class Rating extends Sequelize.Model {
   }, {
     sequelize,
     tableName: 'Rating',
+    hasTrigger: true,
     timestamps: false,
     indexes: [
       {

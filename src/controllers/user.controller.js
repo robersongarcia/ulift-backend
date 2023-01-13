@@ -232,13 +232,15 @@ const getDestination = async (req, res, next) => {
 const postDestination = async (req, res, next) => {
     try {
         const {lat, lng, name} = req.body;
-        const destination = await Destination.build({
+        const destination =  Destination.build({
             lat: (parseFloat(lat)),
             lng: (parseFloat(lng)),
             userID: req.user.id,
             dNumber: (await Destination.count({where: {userID: req.user.id}}) + 1),
             name: name
         });
+
+        console.log(destination);
 
         await destination.save();
 
