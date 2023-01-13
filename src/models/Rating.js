@@ -9,20 +9,12 @@ class Rating extends Sequelize.Model {
     raterID: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
-      references: {
-        model: 'User',
-        key: 'id'
-      }
+      primaryKey: true
     },
     receiverID: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
-      references: {
-        model: 'User',
-        key: 'id'
-      }
+      primaryKey: true
     },
     rate: {
       type: DataTypes.INTEGER,
@@ -38,7 +30,8 @@ class Rating extends Sequelize.Model {
     },
     liftID: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: false,
+      primaryKey: true
     }
   }, {
     sequelize,
@@ -52,6 +45,7 @@ class Rating extends Sequelize.Model {
         fields: [
           { name: "raterID" },
           { name: "receiverID" },
+          { name: "liftID" },
         ]
       },
       {

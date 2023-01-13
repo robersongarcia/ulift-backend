@@ -34,8 +34,6 @@ function initModels(sequelize) {
   User.belongsToMany(User, { as: 'senderID_Users', through: Chat_historial, foreignKey: "receiverID", otherKey: "senderID" });
   User.belongsToMany(User, { as: 'userID2_Users', through: Favorites, foreignKey: "userID1", otherKey: "userID2" });
   User.belongsToMany(User, { as: 'userID1_Users', through: Favorites, foreignKey: "userID2", otherKey: "userID1" });
-  User.belongsToMany(User, { as: 'receiverID_User_Ratings', through: Rating, foreignKey: "raterID", otherKey: "receiverID" });
-  User.belongsToMany(User, { as: 'raterID_Users', through: Rating, foreignKey: "receiverID", otherKey: "raterID" });
   Route.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
   Driver.hasMany(Route, { as: "Routes", foreignKey: "driverID"});
   Waiting_List.belongsTo(Driver, { as: "driver", foreignKey: "driverID"});
@@ -62,10 +60,6 @@ function initModels(sequelize) {
   User.hasMany(Favorites, { as: "userID2_Favorites", foreignKey: "userID2"});
   Lift.belongsTo(User, { as: "passenger", foreignKey: "passengerID"});
   User.hasMany(Lift, { as: "Lifts", foreignKey: "passengerID"});
-  Rating.belongsTo(User, { as: "rater", foreignKey: "raterID"});
-  User.hasMany(Rating, { as: "Ratings", foreignKey: "raterID"});
-  Rating.belongsTo(User, { as: "receiver", foreignKey: "receiverID"});
-  User.hasMany(Rating, { as: "receiver_Ratings", foreignKey: "receiverID"});
   Vehicle.belongsTo(User, { as: "driver", foreignKey: "driverID"});
   User.hasMany(Vehicle, { as: "Vehicles", foreignKey: "driverID"});
   Waiting_List.belongsTo(User, { as: "passenger", foreignKey: "passengerID"});
