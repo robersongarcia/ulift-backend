@@ -643,6 +643,97 @@ const liftHistory = async (req, res, next) =>{
 });
 }
 
+const driverInfo = async (req, res, next) => {
+    try {
+        const {liftID} = req.body;
+
+        const lift = await Lift.findOne({
+            where: {
+                liftID: liftID,
+                complete: false,
+                passengerID: req.user.id
+            }
+        });
+
+        if(lift === null){
+            res.status(400).json({
+                success: false,
+                message: 'no lift'
+            });
+            return;
+        }
+
+        const driver = await Driver.findOne({
+            where: {
+                driverID: lift.driverID
+            }
+        });
+
+        if(driver === null){
+            res.status(400).json({
+                success: false,
+                message: 'no driver'
+            });
+            return;
+        }
+        
+        const user = await User.findOne({
+            where: {
+                id: driver.driverID
+            }
+        });
+
+        if(user === null){
+            res.status(400).json({
+                success: false,
+                message: 'no user'
+            });
+            return;
+        }
+
+        const vehicle = await Vehicle.findOne({
+            where: {
+                plate: lift.plate
+            }
+        });
+
+        if(vehicle === null){
+            res.status(400).json({
+                success: false,
+                message: 'no vehicle'
+            });
+            return;
+        }
+
+        res.json({
+            success: true,
+            driver: {
+                name: user.nameU,
+                lastname: user.lastname,
+                email: user.email,
+                photo: user.photo,
+                rate: user.rate,
+                photo: user.photo,
+                id: user.id,
+                emergencyContact: user.emergencyContact,
+                emergencyPhone: user.emergencyPhone,
+                vehicle: {
+                    plate: vehicle.plate,
+                    model: vehicle.model,
+                    color: vehicle.color,
+                    seats: vehicle.seats
+                }
+            }
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
 module.exports = {
     getMatch,
     createLift,
@@ -655,7 +746,8 @@ module.exports = {
     liftCompleteCheck,
     driverCheck,
     startLift,
-    liftHistory
+    liftHistory,
+    driverInfo
 }
     
 
