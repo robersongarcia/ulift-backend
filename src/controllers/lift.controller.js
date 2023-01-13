@@ -6,9 +6,11 @@ const Vehicle = require('../models/Vehicle.js')(sequelize,DataTypes);
 const Driver = require('../models/Driver.js')(sequelize,DataTypes);
 const Route = require('../models/Route.js')(sequelize,DataTypes);
 const WaitingList = require('../models/Waiting_List.js')(sequelize,DataTypes);
+const Rating = require('../models/Rating.js')(sequelize,DataTypes);
 
 const {getDistance} = require('../helpers/utils');
 const { body } = require('express-validator');
+const { get } = require('../routes/favorites.routes.js');
 
 const getMatch = async (req, res, next) => {
     try {
@@ -621,6 +623,8 @@ const startLift = async (req, res, next) => {
         driver.status = 'P';
 
         await driver.save();
+                
+        //create rating tuples
 
         res.json({
             success: true,
@@ -729,6 +733,141 @@ const driverInfo = async (req, res, next) => {
     }
 };
 
+const createRatings = async (liftID, driverID) => {
+    //create rating objects
+    const allLifts = await Lift.findAll({
+        where: {
+            liftID: liftID
+        }
+    });
+
+    if(allLifts === null){
+        res.status(400).json({
+            success: false,
+            message: 'lift not found'
+        });
+        return;
+    }
+
+    //get passengers of the lift
+    const passengers = await User.findAll({
+        where: {
+            id: allLifts.map((l) => {
+                if(l.passengerID === l.driverID){
+                    return ;
+                }
+                return l.passengerID;
+            })
+        }
+    });
+
+    if(passengers === null){
+        res.status(400).json({
+            success: false,
+            message: 'passengers not found'
+        });
+        return;
+    }
+
+    passengers.forEach(async (p) => {
+        const rating = await Rating.create({
+            liftID: liftID,
+            raterID: p.id,
+            receiverID: driverID
+        });
+    });
+
+    passengers.forEach(async (p) => {
+        const rating = await Rating.create({
+            liftID: liftID,
+            raterID: driverID,
+            receiverID: p.id
+        });
+    });
+
+    return;
+
+}
+
+const createRatingTest = async (req, res, next) => {
+    try {
+        const liftID = req.body.liftID;
+        const driverID = req.body.driverID;
+
+        await createRatings(liftID, driverID);
+
+        res.json({
+            success: true,
+            message: 'ratings created'
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getRating = async (req, res, next) => {
+    try {
+        //get rating from user.id
+
+        const rating = await Rating.findAll({
+            where: {
+                raterID: req.user.id,
+                finished: false
+            }
+        });
+
+        if(rating === null){
+            res.status(400).json({
+                success: false,
+                message: 'you have no ratings to do'
+            });
+            return;
+        }
+
+        res.json({
+            success: true,
+            rating: rating
+        })
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const postRating = async (req, res, next) => {
+    try {
+        const rating = await Rating.findOne({
+            where: {
+                raterID: req.user.id,
+                receiverID: req.body.receiverID,
+                finished: false
+            }
+        });
+
+        if(rating === null){
+            res.status(400).json({
+                success: false,
+                message: 'rating not found'
+            });
+            return;
+        }
+
+        rating.rate = req.body.rate;
+
+        await rating.save();
+
+        res.json({
+            success: true,
+            message: 'rating saved'
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 
 
 
@@ -745,7 +884,10 @@ module.exports = {
     driverCheck,
     startLift,
     liftHistory,
-    driverInfo
+    driverInfo,
+    createRatingTest,
+    getRating,
+    postRating
 }
     
 

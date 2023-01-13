@@ -35,6 +35,10 @@ class Rating extends Sequelize.Model {
     finished: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    liftID: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,
