@@ -156,9 +156,21 @@ const createLift = async (req, res, next) => {
             return;
         }
 
+        console.log(route);
+
         if(route.active == 0){
-            route.active = 1;
-            await route.save();
+            await sequelize.query('UPDATE Route SET active = 0 WHERE driverID = :driverID',{
+                replacements: {
+                    driverID: req.user.id
+                    }
+                    });
+
+            await sequelize.query('UPDATE Route SET active = 1 WHERE driverID = :driverID AND rNumber = :rNumber',{
+                replacements: {
+                    driverID: req.user.id,
+                    rNumber: req.body.rNumber
+                }
+            });
         }
 
         const lift = await Lift.create({
