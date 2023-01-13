@@ -28,12 +28,14 @@ const auth = require('./routes/auth.routes');
 const user = require('./routes/user.routes');
 const favorites = require('./routes/favorites.routes');
 const lift = require('./routes/lift.routes');
+const messages = require('./routes/message.routes');
 
 //routing
 app.use('/api', auth);
 app.use('/api/user', passport.authenticate('jwt', {session: false}), user);
 app.use('/api/favorites', passport.authenticate('jwt', {session: false}), favorites); 
 app.use('/api/lift', passport.authenticate('jwt', {session: false}), lift);
+app.use('/api/chat', passport.authenticate('jwt', {session: false}), messages);
 
 app.listen(PORT, async () => {
     console.log(`App listening on port ${PORT}`);
