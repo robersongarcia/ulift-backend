@@ -16,13 +16,33 @@ const getMessages = async (req, res, next) => {
             console.log("no message");
         } 
         
-        console.log(messages);
 
-        res.json({
-            success: true,
-            message: 'messages',
-            messages: messages
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+const postMessage = async (req, res, next) => {
+    try {
+        const id = req.body.messageID;
+        console.log(req.body);
+
+        const message = await Messages.findOne({
+            where: {
+                messageID: id
+            }
         });
+        
+        if(message===null){
+            res.json({
+                success: true,
+                message: 'this message no exist',
+                status: 'P'
+            });
+        }
+
+        console.log(message);
 
     } catch (error) {
         next(error);
@@ -31,5 +51,6 @@ const getMessages = async (req, res, next) => {
 
 
 module.exports = {
-    getMessages
+    getMessages,
+    postMessage
 };
