@@ -645,11 +645,9 @@ const liftHistory = async (req, res, next) =>{
 
 const driverInfo = async (req, res, next) => {
     try {
-        const {liftID} = req.body;
 
         const lift = await Lift.findOne({
             where: {
-                liftID: liftID,
                 complete: false,
                 passengerID: req.user.id
             }
