@@ -191,7 +191,9 @@ const createLift = async (req, res, next) => {
         res.json({
             success: true,
             message: 'lift created',
-            lift: lift
+            lift: lift,
+            liftID: lift.liftID
+
         });
     }
     catch (error) {
