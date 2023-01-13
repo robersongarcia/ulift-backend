@@ -9,6 +9,7 @@ const Driver = require('../models/Driver.js')(sequelize,DataTypes);
 const Route = require('../models/Route.js')(sequelize,DataTypes);
 const Destination = require('../models/Destination.js')(sequelize,DataTypes);
 const WaitingList = require('../models/Waiting_List.js')(sequelize,DataTypes);
+const Rating = require('../models/Rating.js')(sequelize,DataTypes);
 
 const getProfile = async (req, res, next) => {
     try {
