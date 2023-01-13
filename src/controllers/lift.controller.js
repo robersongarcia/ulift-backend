@@ -629,7 +629,59 @@ const startLift = async (req, res, next) => {
         await driver.save();
                 
         //create rating tuples
-        await createRatings(lift.liftID, req.user.id);
+        const allLifts = await Lift.findAll({
+            where: {
+                liftID: lift.liftID
+            }
+        });
+    
+        if(allLifts === null){
+            res.status(400).json({
+                success: false,
+                message: 'lift not found'
+            });
+            return;
+        }
+    
+        //get passengers of the lift
+        const passengers = await User.findAll({
+            where: {
+                id: allLifts.map((l) => {
+                    if(l.passengerID === l.driverID){
+                        return ;
+                    }
+                    return l.passengerID;
+                })
+            }
+        });
+    
+        if(passengers === null){
+            res.status(400).json({
+                success: false,
+                message: 'passengers not found'
+            });
+            return;
+        }
+    
+        passengers.forEach(async (p) => {
+            console.log('aquixd');
+            const rating = await Rating.create({
+                liftID: lift.liftID,
+                raterID: p.id,
+                receiverID: lift.driverID,
+                finished:false
+            });
+        });
+    
+        passengers.forEach(async (p) => {
+            console.log('aqui');
+            const rating = await Rating.create({
+                liftID: lift.liftID,
+                raterID: lift.driverID,
+                receiverID: p.id,
+                finished:false
+            });
+        });
 
         res.json({
             success: true,
