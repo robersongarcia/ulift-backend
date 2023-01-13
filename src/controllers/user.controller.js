@@ -316,7 +316,7 @@ const getMode = async (req, res, next) => {
                 return;
             }
 
-            if(driver.status == P){
+            if(driver.status == 'P'){
                 res.json({
                     success: true,
                     message: 'driver is in process',
