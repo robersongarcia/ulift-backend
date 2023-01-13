@@ -17,6 +17,12 @@ const postLogin = async (req, res, next) => {
                 return;
             }
 
+            if(user.verified === false){
+                const message = info.message;
+                res.status(433).json({success: false, message });
+                return;
+            }
+
             req.login(user,{ session: false }, async (error) => {
                 if (error) return next(error);
 
