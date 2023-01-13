@@ -91,7 +91,7 @@ passport.use('signup',new localStrategy({
 
         newConfTok.save();
 
-        var url = "http://localhost:3000/api/" + "verify?email=" + token_mail_verification;
+        var url = "https://ulift-backend.up.railway.app/api/" + "verify?email=" + token_mail_verification;
 
         await sendEmail(email, 'Confirmacion de Usuario', req.body.name, url);
 
