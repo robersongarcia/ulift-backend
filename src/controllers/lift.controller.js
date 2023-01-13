@@ -627,61 +627,6 @@ const startLift = async (req, res, next) => {
         driver.status = 'P';
 
         await driver.save();
-                
-        //create rating tuples
-        const allLifts = await Lift.findAll({
-            where: {
-                liftID: lift.liftID
-            }
-        });
-    
-        if(allLifts === null){
-            res.status(400).json({
-                success: false,
-                message: 'lift not found'
-            });
-            return;
-        }
-    
-        //get passengers of the lift
-        const passengers = await User.findAll({
-            where: {
-                id: allLifts.map((l) => {
-                    if(l.passengerID === l.driverID){
-                        return ;
-                    }
-                    return l.passengerID;
-                })
-            }
-        });
-    
-        if(passengers === null){
-            res.status(400).json({
-                success: false,
-                message: 'passengers not found'
-            });
-            return;
-        }
-    
-        passengers.forEach(async (p) => {
-            console.log('aquixd');
-            const rating = await Rating.create({
-                liftID: lift.liftID,
-                raterID: p.id,
-                receiverID: lift.driverID,
-                finished:false
-            });
-        });
-    
-        passengers.forEach(async (p) => {
-            console.log('aqui');
-            const rating = await Rating.create({
-                liftID: lift.liftID,
-                raterID: lift.driverID,
-                receiverID: p.id,
-                finished:false
-            });
-        });
 
         res.json({
             success: true,
@@ -818,6 +763,8 @@ const createRatings = async (liftID, driverID) => {
         }
     });
 
+    console.log(passengers);
+
     if(passengers === null){
         res.status(400).json({
             success: false,
@@ -853,7 +800,7 @@ const createRatings = async (liftID, driverID) => {
 const createRatingTest = async (req, res, next) => {
     try {
         const liftID = req.body.liftID;
-        const driverID = req.body.driverID;
+        const driverID = req.user.id;
 
         await createRatings(liftID, driverID);
 
