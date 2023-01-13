@@ -625,6 +625,7 @@ const startLift = async (req, res, next) => {
         await driver.save();
                 
         //create rating tuples
+        await createRatings(lift.liftID, req.user.id);
 
         res.json({
             success: true,
