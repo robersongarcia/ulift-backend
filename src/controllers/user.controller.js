@@ -303,6 +303,7 @@ const getMode = async (req, res, next) => {
             L <- pasajero aceptado en una cola
             R <- pasajero esta haciendo una peticion de cola
             F <- no esta en ninguna actividad
+            N <- necesita hacer el rating de un viaje
         */
         
         const driver = await Driver.findOne({where: {driverID: req.user.id}});
@@ -356,6 +357,23 @@ const getMode = async (req, res, next) => {
             });
             return;
         }
+
+        const rating = await Rating.findOne({
+            where: {
+                raterID: req.user.id,
+                finished: false
+            }
+        });
+
+        if(rating !== null){
+            res.json({
+                success: true,
+                message: 'passenger needs to rate a lift',
+                mode: 'N'
+            });
+            return;
+        };
+        
 
         res.json({
             success: true,
