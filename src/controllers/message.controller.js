@@ -1,10 +1,9 @@
 const sequelize = require('../config/database.js');
 const { DataTypes } = require('sequelize');
-const { request } = require('express');
 const Messages = require('../models/Messages.js')(sequelize,DataTypes);
 
 
-const getMessages = async (req, res, next) => {
+const getAllMessages = async (req, res, next) => {
     try {
         const messages = await Messages.findAll();        
 
@@ -23,10 +22,9 @@ const getMessages = async (req, res, next) => {
 };
 
 
-const postMessage = async (req, res, next) => {
+const getMessage = async (req, res, next) => {
     try {
         const id = req.body.messageID;
-        console.log(req.body);
 
         const message = await Messages.findOne({
             where: {
@@ -51,6 +49,6 @@ const postMessage = async (req, res, next) => {
 
 
 module.exports = {
-    getMessages,
-    postMessage
+    getAllMessages,
+    getMessage
 };
