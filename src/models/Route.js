@@ -36,7 +36,6 @@ class Route extends Sequelize.Model {
   }, {
     sequelize,
     tableName: 'Route',
-    hasTrigger: true,
     timestamps: false,
     indexes: [
       {
