@@ -770,18 +770,22 @@ const createRatings = async (liftID, driverID) => {
     }
 
     passengers.forEach(async (p) => {
+        console.log('aquixd');
         const rating = await Rating.create({
             liftID: liftID,
             raterID: p.id,
-            receiverID: driverID
+            receiverID: driverID,
+            finished:false
         });
     });
 
     passengers.forEach(async (p) => {
+        console.log('aqui');
         const rating = await Rating.create({
             liftID: liftID,
             raterID: driverID,
-            receiverID: p.id
+            receiverID: p.id,
+            finished:false
         });
     });
 
@@ -854,6 +858,7 @@ const postRating = async (req, res, next) => {
         }
 
         rating.rate = req.body.rate;
+        rating.finished = true;
 
         await rating.save();
 
