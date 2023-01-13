@@ -36,6 +36,10 @@ class Chat_historial extends Sequelize.Model {
     statusMessage: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    room: {
+      type: DataTypes.STRING(10),
+      allowNull: false
     }
   }, {
     sequelize,
